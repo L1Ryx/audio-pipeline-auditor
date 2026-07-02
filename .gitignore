@@ -31,6 +31,9 @@ pnpm-debug.log*
 # Generated audit output
 audio-audit-report/
 reports/
+demo-fixture/
+demo-site/
+.tmp-tests/
 
 # Unity project generated folders, useful when test fixtures include Unity projects
 Library/
