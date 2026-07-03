@@ -67,13 +67,15 @@ The generated report includes `schemaVersion: "0.1.0"` in `report.json` so futur
 
 Audio Pipeline Auditor scans your Unity project locally or in CI. It does not require uploading your Unity project to a website.
 
-Each scan writes a static report folder with `index.html` and `report.json`. Open `index.html` locally, upload the folder as a CI artifact, or host the generated report on any static file host.
+Each scan writes a static report folder:
 
-The GitHub Pages site for this repository is only a demo of the report UI:
-
-```txt
-https://l1ryx.github.io/audio-pipeline-auditor/
+```text
+audio-audit-report/
+  index.html
+  report.json
 ```
+
+Open `index.html` in a browser to view the report. You can also upload the report folder as a CI artifact or host the generated files on any static file host.
 
 ## Limitations
 
