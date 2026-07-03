@@ -22,21 +22,6 @@ audio-audit
 - Render a static React-powered HTML report.
 - Return CI-friendly exit codes when findings reach a configured severity.
 
-## Commands
-
-```bash
-npm install
-npm run build
-npm run dev
-npm run dev:cli -- init
-npm run dev:cli -- scan ./MyUnityProject --out ./audio-audit-report
-npm run dev:cli -- validate-config ./audio-audit.config.json
-```
-
-`npm run dev` builds the demo report and serves it with Vite so the report UI can be tested in a browser.
-
-`npm run dev:report` serves the existing `demo-site` folder without rebuilding it.
-
 ## Quick Start on a Unity Project
 
 From this repo during local development:
