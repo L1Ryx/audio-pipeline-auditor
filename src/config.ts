@@ -7,7 +7,11 @@ export const configSchema = z.object({
   rules: z.object({
     maxFileSizeBytes: z.number().int().positive().default(5_000_000),
     maxDurationSeconds: z.number().positive().default(120),
+    maxAudioSourceVolume: z.number().positive().default(1),
     flagUnreferencedAudio: z.boolean().default(true),
+    flagMissingAudioClips: z.boolean().default(true),
+    requireAudioMixerRouting: z.boolean().default(true),
+    flagPlayOnAwake: z.boolean().default(true),
     failOnSeverity: z.enum(["off", "warning", "error"]).default("error")
   })
 });
@@ -18,7 +22,11 @@ export const defaultConfig: AudioAuditConfig = {
   rules: {
     maxFileSizeBytes: 5_000_000,
     maxDurationSeconds: 120,
+    maxAudioSourceVolume: 1,
     flagUnreferencedAudio: true,
+    flagMissingAudioClips: true,
+    requireAudioMixerRouting: true,
+    flagPlayOnAwake: true,
     failOnSeverity: "error"
   }
 };

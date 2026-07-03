@@ -30,6 +30,81 @@ export const unityAudioReferenceSchema = z.object({
 
 export type UnityAudioReference = z.infer<typeof unityAudioReferenceSchema>;
 
+export const unityAudioSourceSchema = z.object({
+  sourceFile: z.string(),
+  lineNumber: z.number().int().positive(),
+  clipGuid: z.string().optional(),
+  clipPath: z.string().optional(),
+  hasAudioClip: z.boolean(),
+  hasMixerRouting: z.boolean(),
+  playOnAwake: z.boolean().optional(),
+  volume: z.number().optional(),
+  spatialBlend: z.number().optional()
+});
+
+export type UnityAudioSource = z.infer<typeof unityAudioSourceSchema>;
+
+export const pipelineProfileSchema = z.object({
+  kind: z.enum(["SerializedAudioSources", "RuntimeUnityAudio", "ScriptableObjectAudio", "Wwise", "FMOD", "Unknown"]),
+  confidence: z.enum(["low", "medium", "high"]),
+  summary: z.string(),
+  evidence: z.array(
+    z.object({
+      file: z.string(),
+      line: z.number().int().positive().optional(),
+      signal: z.string()
+    })
+  )
+});
+
+export type PipelineProfile = z.infer<typeof pipelineProfileSchema>;
+
+export const scriptAudioSignalSchema = z.object({
+  sourceFile: z.string(),
+  lineNumber: z.number().int().positive(),
+  kind: z.enum([
+    "RuntimeAudioSource",
+    "SerializedAudioSourceField",
+    "AudioClipUsage",
+    "AudioMixerRouting",
+    "UnityAudioPlayback",
+    "MiddlewareUsage"
+  ]),
+  signal: z.string(),
+  matchedText: z.string()
+});
+
+export type ScriptAudioSignal = z.infer<typeof scriptAudioSignalSchema>;
+
+export const scriptableAudioDefinitionSchema = z.object({
+  sourceFile: z.string(),
+  definitionType: z.enum(["MusicTrack", "SfxDefinition", "Unknown"]),
+  audioClipGuids: z.array(z.string()),
+  audioClipPaths: z.array(z.string()),
+  hasAudioClip: z.boolean(),
+  hasMixerRouting: z.boolean(),
+  mixerGroupGuid: z.string().optional(),
+  volume: z.number().optional(),
+  loop: z.boolean().optional()
+});
+
+export type ScriptableAudioDefinition = z.infer<typeof scriptableAudioDefinitionSchema>;
+
+export const auditConfigurationSchema = z.object({
+  rules: z.object({
+    maxFileSizeBytes: z.number().int().positive(),
+    maxDurationSeconds: z.number().positive(),
+    maxAudioSourceVolume: z.number().positive(),
+    flagUnreferencedAudio: z.boolean(),
+    flagMissingAudioClips: z.boolean(),
+    requireAudioMixerRouting: z.boolean(),
+    flagPlayOnAwake: z.boolean(),
+    failOnSeverity: z.enum(["off", "warning", "error"])
+  })
+});
+
+export type AuditConfiguration = z.infer<typeof auditConfigurationSchema>;
+
 export const findingSchema = z.object({
   id: z.string(),
   ruleId: z.string(),
@@ -45,9 +120,13 @@ export type Finding = z.infer<typeof findingSchema>;
 export const audioAuditReportSchema = z.object({
   projectPath: z.string(),
   generatedAt: z.string(),
+  configuration: auditConfigurationSchema,
   summary: z.object({
     audioAssetCount: z.number().int().nonnegative(),
     referenceCount: z.number().int().nonnegative(),
+    audioSourceCount: z.number().int().nonnegative(),
+    scriptAudioSignalCount: z.number().int().nonnegative(),
+    scriptableAudioDefinitionCount: z.number().int().nonnegative(),
     findingCount: z.number().int().nonnegative(),
     errorCount: z.number().int().nonnegative(),
     warningCount: z.number().int().nonnegative(),
@@ -55,6 +134,10 @@ export const audioAuditReportSchema = z.object({
   }),
   assets: z.array(audioAssetSchema),
   references: z.array(unityAudioReferenceSchema),
+  audioSources: z.array(unityAudioSourceSchema),
+  pipelineProfiles: z.array(pipelineProfileSchema),
+  scriptAudioSignals: z.array(scriptAudioSignalSchema),
+  scriptableAudioDefinitions: z.array(scriptableAudioDefinitionSchema),
   findings: z.array(findingSchema)
 });
 

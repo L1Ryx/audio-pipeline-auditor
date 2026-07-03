@@ -14,7 +14,9 @@
     "build:demo": "node dist/demo/build-demo-report.js",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "dev": "tsx src/cli.ts",
+    "dev": "npm run build && npm run build:demo && vite demo-site --host 127.0.0.1",
+    "dev:cli": "tsx src/cli.ts",
+    "dev:report": "vite demo-site --host 127.0.0.1",
     "start": "node dist/cli.js"
   },
   "keywords": [
@@ -40,6 +42,7 @@
     "@types/react-dom": "^19.1.6",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3",
+    "vite": "^7.3.6",
     "vitest": "^3.2.4"
   }
 }
