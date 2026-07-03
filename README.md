@@ -4,6 +4,8 @@ A small TypeScript CLI for auditing Unity projects that use built-in audio or li
 
 This project is a work in progress. Expect the scanner, report UI, and middleware coverage to evolve as more Unity project shapes are tested.
 
+![Audio Pipeline Auditor report screenshot](assets/screenshot.png)
+
 The CLI command is:
 
 ```bash
