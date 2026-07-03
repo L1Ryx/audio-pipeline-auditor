@@ -4,7 +4,7 @@
   "description": "A CLI for auditing Unity audio pipelines and generating static HTML reports.",
   "type": "module",
   "bin": {
-    "audio-audit": "./dist/cli.js"
+    "audio-audit": "dist/cli.js"
   },
   "files": [
     "assets",
