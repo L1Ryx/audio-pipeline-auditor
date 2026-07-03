@@ -15,6 +15,7 @@ import type {
   UnityAudioReference,
   UnityAudioSource
 } from "./reportSchema.js";
+import { audioAuditReportSchemaVersion } from "./reportSchema.js";
 import { scanScriptableAudioDefinitions } from "./scriptableAudioScanner.js";
 import { scanScriptAudio } from "./scriptScanner.js";
 
@@ -60,6 +61,7 @@ export async function scanUnityProject(
   const findings = runRules(linkedAssets, audioSources, scriptableAudioDefinitions, config);
 
   return {
+    schemaVersion: audioAuditReportSchemaVersion,
     projectPath: absoluteProjectPath,
     generatedAt: new Date().toISOString(),
     configuration: config,

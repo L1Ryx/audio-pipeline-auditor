@@ -34,6 +34,32 @@ npm run dev:cli -- validate-config ./audio-audit.config.json
 
 `npm run dev:report` serves the existing `demo-site` folder without rebuilding it.
 
+## Quick Start on a Unity Project
+
+From this repo during local development:
+
+```bash
+npm install
+npm run build
+node dist/cli.js init
+node dist/cli.js scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
+```
+
+Then open:
+
+```txt
+/path/to/MyUnityProject/audio-audit-report/index.html
+```
+
+After the package is published or installed globally, the same workflow becomes:
+
+```bash
+audio-audit init
+audio-audit scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
+```
+
+The generated report includes `schemaVersion: "0.1.0"` in `report.json` so future report viewers can handle report shape changes deliberately.
+
 ## GitHub Pages Hosting
 
 Yes, this can be hosted on GitHub Pages. The repo includes a workflow at `.github/workflows/pages.yml` that builds a sample static report and deploys it as a project page.
@@ -64,3 +90,10 @@ The hosted site should not ask users to upload an entire Unity project. Unity pr
 That means GitHub Pages hosts the demo and static reports, while project access happens wherever the project already lives. For a public repo this can be a GitHub Action. For a private repo, the scan can run inside that private repo's CI and publish the report as an artifact or private Pages output.
 
 Longer term, the front end can become a report viewer that accepts a `report.json` file, but the scanner itself should stay local/CI-first unless there is a real authenticated backend with clear storage and privacy rules.
+
+## Limitations
+
+- Unity assets must be serialized as text for scene, prefab, and asset scanning to be useful.
+- Audio metadata depends on what `music-metadata` can read from the discovered files.
+- Wwise and FMOD support is intentionally lightweight: the scanner summarizes obvious script calls, common component names, and simple artifacts, but it does not parse full Wwise projects, FMOD Studio projects, or bank contents.
+- The report is a static snapshot. It does not watch project files or upload project contents.

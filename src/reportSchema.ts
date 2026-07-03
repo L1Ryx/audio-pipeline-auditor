@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const audioAuditReportSchemaVersion = "0.1.0";
+
 export const severitySchema = z.enum(["info", "warning", "error"]);
 
 export type Severity = z.infer<typeof severitySchema>;
@@ -129,6 +131,7 @@ export const findingSchema = z.object({
 export type Finding = z.infer<typeof findingSchema>;
 
 export const audioAuditReportSchema = z.object({
+  schemaVersion: z.literal(audioAuditReportSchemaVersion),
   projectPath: z.string(),
   generatedAt: z.string(),
   configuration: auditConfigurationSchema,
