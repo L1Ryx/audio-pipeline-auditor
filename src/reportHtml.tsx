@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { renderToStaticMarkup } from "react-dom/server";
 
@@ -14,6 +15,8 @@ import type { AudioAuditReport, Severity } from "./reportSchema.js";
 type ReportHtmlProps = {
   report: AudioAuditReport;
 };
+
+const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export async function writeHtmlReport(report: AudioAuditReport, outputDirectory: string): Promise<string> {
   await mkdir(outputDirectory, { recursive: true });
@@ -31,7 +34,7 @@ export async function writeHtmlReport(report: AudioAuditReport, outputDirectory:
 
 async function loadMonofontoFont(): Promise<string | undefined> {
   try {
-    return (await readFile(path.resolve("assets/monofonto/monofonto rg.otf"))).toString("base64");
+    return (await readFile(path.join(packageRoot, "assets", "monofonto", "monofonto rg.otf"))).toString("base64");
   } catch {
     return undefined;
   }
@@ -39,7 +42,7 @@ async function loadMonofontoFont(): Promise<string | undefined> {
 
 async function loadFavicon(): Promise<string | undefined> {
   try {
-    return (await readFile(path.resolve("assets/favicon.png"))).toString("base64");
+    return (await readFile(path.join(packageRoot, "assets", "favicon.png"))).toString("base64");
   } catch {
     return undefined;
   }

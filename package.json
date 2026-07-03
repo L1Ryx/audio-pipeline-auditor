@@ -1,16 +1,18 @@
 {
-  "name": "audio-pipeline-auditor",
+  "name": "@l1ryx/audio-pipeline-auditor-unity",
   "version": "0.1.0",
-  "description": "A developer-facing CLI for auditing Unity built-in audio pipelines.",
+  "description": "A CLI for auditing Unity audio pipelines and generating static HTML reports.",
   "type": "module",
   "bin": {
     "audio-audit": "./dist/cli.js"
   },
   "files": [
+    "assets",
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
     "build:demo": "node dist/demo/build-demo-report.js",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
@@ -21,13 +23,24 @@
   },
   "keywords": [
     "unity",
+    "unity3d",
     "audio",
     "cli",
     "audit",
-    "gamedev"
+    "gamedev",
+    "wwise",
+    "fmod"
   ],
-  "author": "",
+  "author": "l1ryx",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/l1ryx/audio-pipeline-auditor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/l1ryx/audio-pipeline-auditor/issues"
+  },
+  "homepage": "https://github.com/l1ryx/audio-pipeline-auditor#readme",
   "dependencies": {
     "commander": "^14.0.0",
     "fast-glob": "^3.3.3",

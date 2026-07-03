@@ -1,4 +1,4 @@
-# Audio Pipeline Auditor
+# Audio Pipeline Auditor for Unity
 
 A small TypeScript CLI for auditing Unity projects that use built-in audio or lightweight custom audio systems.
 
@@ -6,11 +6,7 @@ This project is a work in progress. Expect the scanner, report UI, and middlewar
 
 ![Audio Pipeline Auditor report screenshot](assets/screenshot.png)
 
-The CLI command is:
-
-```bash
-audio-audit
-```
+This package is not published to npm yet. For now, clone the repo, build it locally, and run the scanner from this repo against a Unity project path.
 
 ## What It Checks
 
@@ -24,12 +20,18 @@ audio-audit
 
 ## Quick Start on a Unity Project
 
-From this repo during local development:
+Clone and build the auditor:
 
 ```bash
+git clone https://github.com/l1ryx/audio-pipeline-auditor.git
+cd audio-pipeline-auditor
 npm install
 npm run build
-node dist/cli.js init
+```
+
+Scan a Unity project:
+
+```bash
 node dist/cli.js scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
 ```
 
@@ -39,9 +41,18 @@ Then open:
 /path/to/MyUnityProject/audio-audit-report/index.html
 ```
 
-After the package is published or installed globally, the same workflow becomes:
+Do not run `npm install` inside the Unity project. The Unity project is only the scan target.
+
+If you want a config file, create it from the auditor repo:
 
 ```bash
+node dist/cli.js init
+```
+
+When this package is published to npm, the workflow will become:
+
+```bash
+npm install -g @l1ryx/audio-pipeline-auditor-unity
 audio-audit init
 audio-audit scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
 ```
