@@ -6,7 +6,7 @@ This project is a work in progress. Expect the scanner, report UI, and middlewar
 
 ![Audio Pipeline Auditor report screenshot](assets/screenshot.png)
 
-This package is not published to npm yet. For now, clone the repo, build it locally, and run the scanner from this repo against a Unity project path.
+Install it with npm, then run the scanner against a Unity project path.
 
 ## What It Checks
 
@@ -20,19 +20,16 @@ This package is not published to npm yet. For now, clone the repo, build it loca
 
 ## Quick Start on a Unity Project
 
-Clone and build the auditor:
+Install the CLI:
 
 ```bash
-git clone https://github.com/l1ryx/audio-pipeline-auditor.git
-cd audio-pipeline-auditor
-npm install
-npm run build
+npm install -g @l1ryx/audio-pipeline-auditor-unity
 ```
 
 Scan a Unity project:
 
 ```bash
-node dist/cli.js scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
+audio-audit scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
 ```
 
 Then open:
@@ -43,18 +40,22 @@ Then open:
 
 Do not run `npm install` inside the Unity project. The Unity project is only the scan target.
 
-If you want a config file, create it from the auditor repo:
+If you want a config file:
 
 ```bash
-node dist/cli.js init
+audio-audit init
 ```
 
-When this package is published to npm, the workflow will become:
+## Build From Source
+
+You can also clone and build the auditor locally:
 
 ```bash
-npm install -g @l1ryx/audio-pipeline-auditor-unity
-audio-audit init
-audio-audit scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
+git clone https://github.com/l1ryx/audio-pipeline-auditor.git
+cd audio-pipeline-auditor
+npm install
+npm run build
+node dist/cli.js scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-audit-report
 ```
 
 The generated report includes `schemaVersion: "0.1.0"` in `report.json` so future report viewers can handle report shape changes deliberately.
