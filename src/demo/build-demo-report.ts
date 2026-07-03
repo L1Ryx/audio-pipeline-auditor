@@ -84,6 +84,7 @@ async function createDemoUnityProject(root: string): Promise<void> {
     path.join(scriptDirectory, "RuntimeAudioPool.cs"),
     [
       "using UnityEngine;",
+      "using FMODUnity;",
       "",
       "public class RuntimeAudioPool : MonoBehaviour",
       "{",
@@ -93,6 +94,8 @@ async function createDemoUnityProject(root: string): Promise<void> {
       "    {",
       "        source = gameObject.AddComponent<AudioSource>();",
       "        source.playOnAwake = false;",
+      "        AkSoundEngine.PostEvent(\"Play_Laser\", gameObject);",
+      "        RuntimeManager.PlayOneShot(\"event:/UI/Click\");",
       "    }",
       "}"
     ].join("\n"),

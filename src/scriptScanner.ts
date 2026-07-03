@@ -3,7 +3,7 @@ import path from "node:path";
 
 import fg from "fast-glob";
 
-import type { ScriptAudioSignal } from "./reportSchema.js";
+import type { MiddlewareCall, ScriptAudioSignal } from "./reportSchema.js";
 
 const ignoredUnityFolders = [
   "Library/**",
@@ -65,7 +65,49 @@ const signalPatterns: Array<{
   }
 ];
 
+const middlewarePatterns: Array<{
+  engine: MiddlewareCall["engine"];
+  apiPrefix: string;
+  pattern: RegExp;
+}> = [
+  {
+    engine: "Wwise",
+    apiPrefix: "AkSoundEngine",
+    pattern:
+      /\bAkSoundEngine\s*\.\s*(PostEvent|SetState|SetSwitch|SetRTPCValue|PostTrigger|RegisterGameObj|LoadBank|UnloadBank|StopAll|StopPlayingID)\s*\(([^)]*)\)/u
+  },
+  {
+    engine: "Wwise",
+    apiPrefix: "AK.Wwise",
+    pattern: /\bAK\.Wwise\.\w+\s*\.\s*(Post|SetValue|SetGlobalValue)\s*\(([^)]*)\)/u
+  },
+  {
+    engine: "FMOD",
+    apiPrefix: "RuntimeManager",
+    pattern:
+      /\b(?:FMODUnity\.)?RuntimeManager\s*\.\s*(PlayOneShot|PlayOneShotAttached|CreateInstance|AttachInstanceToGameObject|GetBus|GetVCA|LoadBank|UnloadBank)\s*\(([^)]*)\)/u
+  },
+  {
+    engine: "FMOD",
+    apiPrefix: "StudioEventEmitter",
+    pattern: /\bStudioEventEmitter\s*\.\s*(Play|Stop)\s*\(([^)]*)\)/u
+  }
+];
+
 export async function scanScriptAudioSignals(projectPath: string): Promise<ScriptAudioSignal[]> {
+  const { signals } = await scanScriptAudio(projectPath);
+  return signals;
+}
+
+export async function scanMiddlewareCalls(projectPath: string): Promise<MiddlewareCall[]> {
+  const { middlewareCalls } = await scanScriptAudio(projectPath);
+  return middlewareCalls;
+}
+
+export async function scanScriptAudio(projectPath: string): Promise<{
+  signals: ScriptAudioSignal[];
+  middlewareCalls: MiddlewareCall[];
+}> {
   const scriptFiles = await fg("Assets/**/*.cs", {
     cwd: projectPath,
     absolute: false,
@@ -74,6 +116,7 @@ export async function scanScriptAudioSignals(projectPath: string): Promise<Scrip
   });
 
   const signals: ScriptAudioSignal[] = [];
+  const middlewareCalls: MiddlewareCall[] = [];
 
   for (const relativePath of scriptFiles.sort()) {
     const normalizedSource = normalizePath(relativePath);
@@ -98,10 +141,32 @@ export async function scanScriptAudioSignals(projectPath: string): Promise<Scrip
           matchedText: line.trim()
         });
       }
+
+      for (const middlewarePattern of middlewarePatterns) {
+        const match = line.match(middlewarePattern.pattern);
+
+        if (!match) {
+          continue;
+        }
+
+        const apiName = match[1] ?? "Unknown";
+        middlewareCalls.push({
+          engine: middlewarePattern.engine,
+          api: `${middlewarePattern.apiPrefix}.${apiName}`,
+          sourceFile: normalizedSource,
+          lineNumber: index + 1,
+          matchedText: line.trim(),
+          eventName: extractFirstStringArgument(match[2] ?? "")
+        });
+      }
     });
   }
 
-  return signals;
+  return { signals, middlewareCalls };
+}
+
+function extractFirstStringArgument(argumentsText: string): string | undefined {
+  return argumentsText.match(/["']([^"']+)["']/u)?.[1];
 }
 
 function normalizePath(value: string): string {

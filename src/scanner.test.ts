@@ -138,4 +138,40 @@ describe("scanUnityProject", () => {
     ]);
     expect(report.assets[0]?.referencedBy).toEqual(["Assets/Audio/SFX_Laser.asset"]);
   });
+
+  test("summarizes Wwise and FMOD middleware calls", async ({ task }) => {
+    const root = path.join(".tmp-tests", task.id);
+    await mkdir(path.join(root, "Assets", "Scripts"), { recursive: true });
+
+    await writeFile(
+      path.join(root, "Assets", "Scripts", "MiddlewareAudio.cs"),
+      [
+        "using UnityEngine;",
+        "using FMODUnity;",
+        "public class MiddlewareAudio : MonoBehaviour",
+        "{",
+        "  private void Play()",
+        "  {",
+        "    AkSoundEngine.PostEvent(\"Play_UI_Click\", gameObject);",
+        "    AkSoundEngine.SetRTPCValue(\"MusicIntensity\", 42);",
+        "    RuntimeManager.PlayOneShot(\"event:/UI/Accept\");",
+        "  }",
+        "}"
+      ].join("\n"),
+      "utf8"
+    );
+
+    const report = await scanUnityProject(root, defaultConfig);
+
+    expect(report.middlewareCalls).toHaveLength(3);
+    expect(report.middlewareCalls.map((call) => call.engine)).toEqual(["Wwise", "Wwise", "FMOD"]);
+    expect(report.middlewareCalls.map((call) => call.eventName)).toEqual([
+      "Play_UI_Click",
+      "MusicIntensity",
+      "event:/UI/Accept"
+    ]);
+    expect(report.pipelineProfiles.map((profile) => profile.kind)).toEqual(["Wwise", "FMOD"]);
+    expect(report.pipelineProfiles[0]?.summary).toContain("2 Wwise script call");
+    expect(report.pipelineProfiles[1]?.summary).toContain("1 FMOD script call");
+  });
 });

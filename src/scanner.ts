@@ -16,7 +16,7 @@ import type {
   UnityAudioSource
 } from "./reportSchema.js";
 import { scanScriptableAudioDefinitions } from "./scriptableAudioScanner.js";
-import { scanScriptAudioSignals } from "./scriptScanner.js";
+import { scanScriptAudio } from "./scriptScanner.js";
 
 const unityTextPatterns = ["Assets/**/*.unity", "Assets/**/*.prefab", "Assets/**/*.asset"];
 
@@ -41,12 +41,13 @@ export async function scanUnityProject(
   const guidIndex = await buildAudioGuidIndex(absoluteProjectPath);
   const assets = await scanAudioAssets(absoluteProjectPath);
   const { references, audioSources } = await scanUnityTextAssets(absoluteProjectPath, guidIndex);
-  const scriptAudioSignals = await scanScriptAudioSignals(absoluteProjectPath);
+  const { signals: scriptAudioSignals, middlewareCalls } = await scanScriptAudio(absoluteProjectPath);
   const scriptableAudioDefinitions = await scanScriptableAudioDefinitions(absoluteProjectPath, guidIndex);
   const pipelineProfiles = await detectPipelineProfiles({
     projectPath: absoluteProjectPath,
     audioSources,
     scriptAudioSignals,
+    middlewareCalls,
     scriptableAudioDefinitions
   });
 
@@ -67,6 +68,7 @@ export async function scanUnityProject(
       referenceCount: references.length,
       audioSourceCount: audioSources.length,
       scriptAudioSignalCount: scriptAudioSignals.length,
+      middlewareCallCount: middlewareCalls.length,
       scriptableAudioDefinitionCount: scriptableAudioDefinitions.length,
       findingCount: findings.length,
       errorCount: findings.filter((finding) => finding.severity === "error").length,
@@ -78,6 +80,7 @@ export async function scanUnityProject(
     audioSources,
     pipelineProfiles,
     scriptAudioSignals,
+    middlewareCalls,
     scriptableAudioDefinitions,
     findings
   };

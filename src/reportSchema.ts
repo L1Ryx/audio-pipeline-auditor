@@ -59,6 +59,17 @@ export const pipelineProfileSchema = z.object({
 
 export type PipelineProfile = z.infer<typeof pipelineProfileSchema>;
 
+export const middlewareCallSchema = z.object({
+  engine: z.enum(["Wwise", "FMOD"]),
+  api: z.string(),
+  sourceFile: z.string(),
+  lineNumber: z.number().int().positive(),
+  matchedText: z.string(),
+  eventName: z.string().optional()
+});
+
+export type MiddlewareCall = z.infer<typeof middlewareCallSchema>;
+
 export const scriptAudioSignalSchema = z.object({
   sourceFile: z.string(),
   lineNumber: z.number().int().positive(),
@@ -126,6 +137,7 @@ export const audioAuditReportSchema = z.object({
     referenceCount: z.number().int().nonnegative(),
     audioSourceCount: z.number().int().nonnegative(),
     scriptAudioSignalCount: z.number().int().nonnegative(),
+    middlewareCallCount: z.number().int().nonnegative(),
     scriptableAudioDefinitionCount: z.number().int().nonnegative(),
     findingCount: z.number().int().nonnegative(),
     errorCount: z.number().int().nonnegative(),
@@ -137,6 +149,7 @@ export const audioAuditReportSchema = z.object({
   audioSources: z.array(unityAudioSourceSchema),
   pipelineProfiles: z.array(pipelineProfileSchema),
   scriptAudioSignals: z.array(scriptAudioSignalSchema),
+  middlewareCalls: z.array(middlewareCallSchema),
   scriptableAudioDefinitions: z.array(scriptableAudioDefinitionSchema),
   findings: z.array(findingSchema)
 });

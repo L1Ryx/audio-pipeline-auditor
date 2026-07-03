@@ -4,6 +4,7 @@ import path from "node:path";
 import fg from "fast-glob";
 
 import type {
+  MiddlewareCall,
   PipelineProfile,
   ScriptAudioSignal,
   ScriptableAudioDefinition,
@@ -25,6 +26,7 @@ export async function detectPipelineProfiles(input: {
   projectPath: string;
   audioSources: UnityAudioSource[];
   scriptAudioSignals: ScriptAudioSignal[];
+  middlewareCalls: MiddlewareCall[];
   scriptableAudioDefinitions: ScriptableAudioDefinition[];
 }): Promise<PipelineProfile[]> {
   const profiles: PipelineProfile[] = [];
@@ -71,10 +73,31 @@ export async function detectPipelineProfiles(input: {
     });
   }
 
-  const wwiseProfile = await detectWwiseProfile(input.projectPath, input.scriptAudioSignals);
+  const wwiseProfile = await detectMiddlewareProfile({
+    projectPath: input.projectPath,
+    kind: "Wwise",
+    calls: input.middlewareCalls.filter((call) => call.engine === "Wwise"),
+    artifactPatterns: ["Assets/WwiseSettings.xml", "Assets/**/*Wwise*.{xml,asset}", "Assets/**/*.wwu"],
+    unityObjectPattern: /\b(?:WwiseGlobal|AkInitializer|AkEvent|AkBank)\b/u,
+    artifactSignal: "Wwise artifact or settings file",
+    unityObjectSignal: "Wwise component or object name in Unity asset"
+  });
+  const fmodProfile = await detectMiddlewareProfile({
+    projectPath: input.projectPath,
+    kind: "FMOD",
+    calls: input.middlewareCalls.filter((call) => call.engine === "FMOD"),
+    artifactPatterns: ["Assets/**/*FMOD*.{asset,bank,strings}", "Assets/StreamingAssets/**/*.bank"],
+    unityObjectPattern: /\b(?:StudioEventEmitter|StudioBankLoader|FMODStudioSettings|EventReference)\b/u,
+    artifactSignal: "FMOD artifact, bank, or settings file",
+    unityObjectSignal: "FMOD component or object name in Unity asset"
+  });
 
   if (wwiseProfile) {
     profiles.push(wwiseProfile);
+  }
+
+  if (fmodProfile) {
+    profiles.push(fmodProfile);
   }
 
   if (profiles.length === 0) {
@@ -89,20 +112,27 @@ export async function detectPipelineProfiles(input: {
   return profiles;
 }
 
-async function detectWwiseProfile(projectPath: string, scriptAudioSignals: ScriptAudioSignal[]): Promise<PipelineProfile | undefined> {
+async function detectMiddlewareProfile(input: {
+  projectPath: string;
+  kind: Extract<PipelineProfile["kind"], "Wwise" | "FMOD">;
+  calls: MiddlewareCall[];
+  artifactPatterns: string[];
+  unityObjectPattern: RegExp;
+  artifactSignal: string;
+  unityObjectSignal: string;
+}): Promise<PipelineProfile | undefined> {
   const evidence: PipelineProfile["evidence"] = [];
-  const activeScriptSignals = scriptAudioSignals.filter((signal) => signal.kind === "MiddlewareUsage");
 
   evidence.push(
-    ...activeScriptSignals.slice(0, 8).map((signal) => ({
-      file: signal.sourceFile,
-      line: signal.lineNumber,
-      signal: signal.signal
+    ...input.calls.slice(0, 10).map((call) => ({
+      file: call.sourceFile,
+      line: call.lineNumber,
+      signal: call.eventName ? `${call.api} -> ${call.eventName}` : call.api
     }))
   );
 
-  const artifactFiles = await fg(["Assets/WwiseSettings.xml", "Assets/**/*Wwise*.{xml,asset}", "Assets/**/*.wwu"], {
-    cwd: projectPath,
+  const artifactFiles = await fg(input.artifactPatterns, {
+    cwd: input.projectPath,
     absolute: false,
     onlyFiles: true,
     ignore: ignoredUnityFolders
@@ -111,12 +141,12 @@ async function detectWwiseProfile(projectPath: string, scriptAudioSignals: Scrip
   for (const artifactFile of artifactFiles.sort().slice(0, 8)) {
     evidence.push({
       file: normalizePath(artifactFile),
-      signal: "Wwise artifact or settings file"
+      signal: input.artifactSignal
     });
   }
 
   const unityFiles = await fg(["Assets/**/*.{unity,prefab,asset}"], {
-    cwd: projectPath,
+    cwd: input.projectPath,
     absolute: false,
     onlyFiles: true,
     ignore: ignoredUnityFolders
@@ -127,15 +157,15 @@ async function detectWwiseProfile(projectPath: string, scriptAudioSignals: Scrip
       break;
     }
 
-    const contents = await readFile(path.join(projectPath, unityFile), "utf8");
+    const contents = await readFile(path.join(input.projectPath, unityFile), "utf8");
     const lines = contents.split(/\r?\n/u);
-    const lineIndex = lines.findIndex((line) => /\b(?:WwiseGlobal|AkInitializer|AkEvent|AkBank)\b/u.test(line));
+    const lineIndex = lines.findIndex((line) => input.unityObjectPattern.test(line));
 
     if (lineIndex >= 0) {
       evidence.push({
         file: normalizePath(unityFile),
         line: lineIndex + 1,
-        signal: "Wwise component or object name in Unity asset"
+        signal: input.unityObjectSignal
       });
     }
   }
@@ -144,15 +174,31 @@ async function detectWwiseProfile(projectPath: string, scriptAudioSignals: Scrip
     return undefined;
   }
 
+  const apiSummary = summarizeMiddlewareApis(input.calls);
+
   return {
-    kind: "Wwise",
-    confidence: activeScriptSignals.length > 0 ? "high" : "medium",
+    kind: input.kind,
+    confidence: input.calls.length > 0 ? "high" : "medium",
     summary:
-      activeScriptSignals.length > 0
-        ? "Active Wwise/Audiokinetic script usage was detected."
-        : "Wwise artifacts were detected, but no active Wwise script API usage was found.",
+      input.calls.length > 0
+        ? `${input.calls.length} ${input.kind} script call(s) detected${apiSummary ? `: ${apiSummary}.` : "."}`
+        : `${input.kind} artifacts were detected, but no active ${input.kind} script API usage was found.`,
     evidence
   };
+}
+
+function summarizeMiddlewareApis(calls: MiddlewareCall[]): string {
+  const counts = new Map<string, number>();
+
+  for (const call of calls) {
+    counts.set(call.api, (counts.get(call.api) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .slice(0, 4)
+    .map(([api, count]) => `${api} x${count}`)
+    .join(", ");
 }
 
 function normalizePath(value: string): string {

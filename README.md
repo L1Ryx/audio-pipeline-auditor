@@ -13,6 +13,7 @@ audio-audit
 - Scan Unity project folders for audio files and Unity text assets.
 - Detect oversized audio, unreferenced clips, missing AudioSource clips, unresolved clip GUIDs, missing mixer routing, Play On Awake, and suspicious AudioSource volume.
 - Detect audio pipeline architecture: serialized `AudioSource` components, runtime-created Unity audio, ScriptableObject audio definitions, and Wwise artifacts.
+- Summarize obvious Wwise and FMOD script calls, including common API names and first string event arguments.
 - Build a structured JSON report.
 - Render a static React-powered HTML report.
 - Return CI-friendly exit codes when findings reach a configured severity.
@@ -51,3 +52,15 @@ https://<github-user>.github.io/audio-pipeline-auditor/
 ```
 
 The CLI-generated reports are also static HTML, so a report folder can be uploaded anywhere that serves plain files.
+
+## Project Input Model
+
+The hosted site should not ask users to upload an entire Unity project. Unity projects are large, private, and full of generated/cache content. For this tool, the safer V1 model is:
+
+- Run the scanner locally against a project folder.
+- Or run the scanner in CI on a checked-out repository.
+- Publish only the generated `report.json` and `index.html` report.
+
+That means GitHub Pages hosts the demo and static reports, while project access happens wherever the project already lives. For a public repo this can be a GitHub Action. For a private repo, the scan can run inside that private repo's CI and publish the report as an artifact or private Pages output.
+
+Longer term, the front end can become a report viewer that accepts a `report.json` file, but the scanner itself should stay local/CI-first unless there is a real authenticated backend with clear storage and privacy rules.
