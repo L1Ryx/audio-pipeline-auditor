@@ -2,13 +2,15 @@
 
 A small TypeScript CLI for auditing Unity projects that use built-in audio or lightweight custom audio systems.
 
+This project is a work in progress. Expect the scanner, report UI, and middleware coverage to evolve as more Unity project shapes are tested.
+
 The CLI command is:
 
 ```bash
 audio-audit
 ```
 
-## V1 Shape
+## What It Checks
 
 - Scan Unity project folders for audio files and Unity text assets.
 - Detect oversized audio, unreferenced clips, missing AudioSource clips, unresolved clip GUIDs, missing mixer routing, Play On Awake, and suspicious AudioSource volume.
@@ -62,7 +64,7 @@ The generated report includes `schemaVersion: "0.1.0"` in `report.json` so futur
 
 ## GitHub Pages Hosting
 
-Yes, this can be hosted on GitHub Pages. The repo includes a workflow at `.github/workflows/pages.yml` that builds a sample static report and deploys it as a project page.
+The project demo can be hosted on GitHub Pages. The repo includes a workflow at `.github/workflows/pages.yml` that builds a sample static report and deploys it as a project page.
 
 Once the repo is pushed to GitHub:
 
@@ -71,17 +73,17 @@ Once the repo is pushed to GitHub:
 3. Set **Build and deployment** to **GitHub Actions**.
 4. Push to `main`.
 
-The project site will use the standard project URL:
+For this repository, the project site will use:
 
 ```txt
-https://<github-user>.github.io/audio-pipeline-auditor/
+https://l1ryx.github.io/audio-pipeline-auditor/
 ```
 
-The CLI-generated reports are also static HTML, so a report folder can be uploaded anywhere that serves plain files.
+The CLI-generated reports are also static HTML, so users can open reports locally or upload a report folder anywhere that serves plain files.
 
 ## Project Input Model
 
-The hosted site should not ask users to upload an entire Unity project. Unity projects are large, private, and full of generated/cache content. For this tool, the safer V1 model is:
+The hosted site should not ask users to upload an entire Unity project. Unity projects are large, private, and full of generated/cache content. The intended project workflow is:
 
 - Run the scanner locally against a project folder.
 - Or run the scanner in CI on a checked-out repository.
@@ -89,7 +91,7 @@ The hosted site should not ask users to upload an entire Unity project. Unity pr
 
 That means GitHub Pages hosts the demo and static reports, while project access happens wherever the project already lives. For a public repo this can be a GitHub Action. For a private repo, the scan can run inside that private repo's CI and publish the report as an artifact or private Pages output.
 
-Longer term, the front end can become a report viewer that accepts a `report.json` file, but the scanner itself should stay local/CI-first unless there is a real authenticated backend with clear storage and privacy rules.
+The front end may also become a report viewer that accepts a `report.json` file, but the scanner itself should stay local/CI-first unless there is a real authenticated backend with clear storage and privacy rules.
 
 ## Limitations
 
