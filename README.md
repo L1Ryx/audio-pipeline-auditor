@@ -21,7 +21,6 @@ audio-audit
 - Build a structured JSON report.
 - Render a static React-powered HTML report.
 - Return CI-friendly exit codes when findings reach a configured severity.
-- Publish a demo report to GitHub Pages.
 
 ## Commands
 
@@ -64,36 +63,17 @@ audio-audit scan /path/to/MyUnityProject --out /path/to/MyUnityProject/audio-aud
 
 The generated report includes `schemaVersion: "0.1.0"` in `report.json` so future report viewers can handle report shape changes deliberately.
 
-## GitHub Pages Hosting
+## Reports
 
-The project demo can be hosted on GitHub Pages. The repo includes a workflow at `.github/workflows/pages.yml` that builds a sample static report and deploys it as a project page.
+Audio Pipeline Auditor scans your Unity project locally or in CI. It does not require uploading your Unity project to a website.
 
-Once the repo is pushed to GitHub:
+Each scan writes a static report folder with `index.html` and `report.json`. Open `index.html` locally, upload the folder as a CI artifact, or host the generated report on any static file host.
 
-1. Open the repository settings.
-2. Go to **Pages**.
-3. Set **Build and deployment** to **GitHub Actions**.
-4. Push to `main`.
-
-For this repository, the project site will use:
+The GitHub Pages site for this repository is only a demo of the report UI:
 
 ```txt
 https://l1ryx.github.io/audio-pipeline-auditor/
 ```
-
-The CLI-generated reports are also static HTML, so users can open reports locally or upload a report folder anywhere that serves plain files.
-
-## Project Input Model
-
-The hosted site should not ask users to upload an entire Unity project. Unity projects are large, private, and full of generated/cache content. The intended project workflow is:
-
-- Run the scanner locally against a project folder.
-- Or run the scanner in CI on a checked-out repository.
-- Publish only the generated `report.json` and `index.html` report.
-
-That means GitHub Pages hosts the demo and static reports, while project access happens wherever the project already lives. For a public repo this can be a GitHub Action. For a private repo, the scan can run inside that private repo's CI and publish the report as an artifact or private Pages output.
-
-The front end may also become a report viewer that accepts a `report.json` file, but the scanner itself should stay local/CI-first unless there is a real authenticated backend with clear storage and privacy rules.
 
 ## Limitations
 
