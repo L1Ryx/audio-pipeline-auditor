@@ -1,35 +1,44 @@
-export function createStyles(fontBase64?: string): string {
-  const fontFace = fontBase64
+type ReportFontAssets = {
+  interFontBase64?: string;
+};
+
+export function createStyles({ interFontBase64 }: ReportFontAssets = {}): string {
+  const interFontFace = interFontBase64
     ? `
 @font-face {
-  font-family: "Monofonto";
+  font-family: "Inter";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("data:font/otf;base64,${fontBase64}") format("opentype");
+  src: url("data:font/ttf;base64,${interFontBase64}") format("truetype");
 }
 `
     : "";
 
-  return `${fontFace}
+  return `${interFontFace}
 :root {
   color-scheme: light;
   --ink: #07090d;
   --ink-soft: #10151f;
   --panel: #151923;
-  --crimson: #b91c1c;
-  --crimson-bright: #dc2626;
-  --gold: #d6a84f;
-  --gold-soft: #f0d493;
-  --paper: #f6f1e8;
-  --surface: #fffaf0;
+  --crimson: #e11d48;
+  --crimson-bright: #ff2f5f;
+  --gold: #f59e0b;
+  --gold-soft: #fde68a;
+  --blue: #0ea5e9;
+  --blue-deep: #0369a1;
+  --violet: #8b5cf6;
+  --green: #22c55e;
+  --paper: #ffffff;
+  --surface: #ffffff;
   --text: #151922;
-  --muted: #68707d;
+  --muted: #5e6674;
   --border: #ded6c8;
   --border-dark: rgba(255, 255, 255, 0.13);
   --rule-light: rgba(88, 79, 68, 0.22);
   --shadow: 0 18px 42px rgba(13, 18, 28, 0.11);
-  --font-body: "Monofonto", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: var(--font-body);
   font-family: var(--font-body);
   background: var(--paper);
   color: var(--text);
@@ -48,9 +57,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    linear-gradient(180deg, rgba(185, 28, 28, 0.08), transparent 28rem),
-    var(--paper);
+  background: var(--paper);
   font-family: var(--font-body);
 }
 
@@ -71,6 +78,7 @@ body {
   align-items: center;
   gap: 12px;
   color: #fff8ed;
+  font-family: var(--font-heading);
   font-weight: 700;
   letter-spacing: 0.03em;
 }
@@ -80,9 +88,10 @@ body {
   height: 34px;
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(214, 168, 79, 0.55);
+  border: 1px solid rgba(245, 158, 11, 0.65);
   border-radius: 8px;
   color: var(--gold-soft);
+  font-family: var(--font-heading);
   background: var(--ink);
   font-size: 0.86rem;
   overflow: hidden;
@@ -112,6 +121,7 @@ body {
 .eyebrow {
   margin: 0 0 8px;
   color: var(--crimson);
+  font-family: var(--font-heading);
   font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -124,6 +134,7 @@ h1, h2, h3, p {
 
 h1 {
   max-width: 860px;
+  font-family: var(--font-heading);
   font-size: clamp(2.35rem, 5vw, 4.25rem);
   letter-spacing: 0.03em;
   line-height: 1.02;
@@ -131,12 +142,14 @@ h1 {
 
 h2 {
   color: var(--ink);
+  font-family: var(--font-heading);
   font-size: 1.55rem;
   letter-spacing: 0.03em;
 }
 
 h3 {
   color: var(--ink);
+  font-family: var(--font-heading);
   font-size: 1.02rem;
   letter-spacing: 0.03em;
   text-transform: capitalize;
@@ -188,11 +201,11 @@ h3 {
 }
 
 .statusChip.warning strong {
-  color: #a85f00;
+  color: #c2410c;
 }
 
 .statusChip.info strong {
-  color: #244051;
+  color: var(--blue-deep);
 }
 
 .contextGrid {
@@ -213,6 +226,7 @@ h3 {
 .panelLabel {
   margin: 0 0 8px;
   color: var(--crimson);
+  font-family: var(--font-heading);
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -302,6 +316,7 @@ h3 {
   position: relative;
   z-index: 1;
   color: var(--text);
+  font-family: var(--font-heading);
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -374,7 +389,7 @@ h3 {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--crimson), var(--gold));
+  background: linear-gradient(90deg, var(--crimson), #f97316, var(--gold));
   animation: bar-grow 700ms ease both;
 }
 
@@ -435,12 +450,12 @@ h3 {
 }
 
 .confidence.high {
-  border-color: rgba(214, 168, 79, 0.8);
-  color: #7c5200;
+  border-color: rgba(245, 158, 11, 0.85);
+  color: #b45309;
 }
 
 .confidence.medium {
-  border-color: rgba(185, 28, 28, 0.28);
+  border-color: rgba(225, 29, 72, 0.36);
   color: var(--crimson);
 }
 
@@ -474,10 +489,10 @@ h3 {
 
 .pipelinePrimary {
   padding: 18px;
-  border: 1px solid rgba(214, 168, 79, 0.75);
+  border: 1px solid rgba(245, 158, 11, 0.85);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(214, 168, 79, 0.18), transparent 55%),
+    linear-gradient(135deg, rgba(245, 158, 11, 0.24), rgba(14, 165, 233, 0.1) 55%, transparent),
     var(--surface);
 }
 
@@ -558,12 +573,13 @@ h3 {
 }
 
 .metric strong {
+  font-family: var(--font-heading);
   font-size: 2.1rem;
   line-height: 1;
 }
 
 .metric.warning strong {
-  color: #a85f00;
+  color: #c2410c;
 }
 
 .section {
@@ -606,11 +622,11 @@ h3 {
 }
 
 .findingGroup.error {
-  border-color: rgba(185, 28, 28, 0.4);
+  border-color: rgba(225, 29, 72, 0.48);
 }
 
 .findingGroup.warning {
-  border-color: rgba(214, 168, 79, 0.7);
+  border-color: rgba(245, 158, 11, 0.78);
 }
 
 .findingGroup ul {
@@ -658,8 +674,8 @@ tr[hidden] {
 }
 
 code {
-  font-family: var(--font-body);
-  color: #244051;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  color: var(--blue-deep);
   overflow-wrap: anywhere;
 }
 
@@ -714,7 +730,7 @@ code {
 
 .tableControls input:focus,
 .listControls input:focus {
-  outline: 2px solid rgba(214, 168, 79, 0.6);
+  outline: 2px solid rgba(245, 158, 11, 0.72);
   outline-offset: 1px;
 }
 
@@ -796,8 +812,8 @@ tbody tr:last-child td {
 }
 
 .pill.ok {
-  color: #244051;
-  background: rgba(214, 168, 79, 0.14);
+  color: var(--blue-deep);
+  background: rgba(14, 165, 233, 0.14);
 }
 
 .pill.muted {

@@ -22,19 +22,23 @@ export async function writeHtmlReport(report: AudioAuditReport, outputDirectory:
   await mkdir(outputDirectory, { recursive: true });
 
   const htmlPath = path.join(outputDirectory, "index.html");
-  const fontBase64 = await loadMonofontoFont();
+  const interFontBase64 = await loadInterFont();
   const faviconBase64 = await loadFavicon();
   const markup = `<!doctype html>${renderToStaticMarkup(
-    <ReportHtml report={report} fontBase64={fontBase64} faviconBase64={faviconBase64} />
+    <ReportHtml
+      report={report}
+      interFontBase64={interFontBase64}
+      faviconBase64={faviconBase64}
+    />
   )}`;
 
   await writeFile(htmlPath, markup, "utf8");
   return htmlPath;
 }
 
-async function loadMonofontoFont(): Promise<string | undefined> {
+async function loadInterFont(): Promise<string | undefined> {
   try {
-    return (await readFile(path.join(packageRoot, "assets", "monofonto", "monofonto rg.otf"))).toString("base64");
+    return (await readFile(path.join(packageRoot, "assets", "Inter", "Inter-VariableFont_opsz,wght.ttf"))).toString("base64");
   } catch {
     return undefined;
   }
@@ -50,9 +54,9 @@ async function loadFavicon(): Promise<string | undefined> {
 
 function ReportHtml({
   report,
-  fontBase64,
+  interFontBase64,
   faviconBase64
-}: ReportHtmlProps & { fontBase64?: string; faviconBase64?: string }) {
+}: ReportHtmlProps & { interFontBase64?: string; faviconBase64?: string }) {
   const findingsBySeverity = {
     error: report.findings.filter((finding) => finding.severity === "error"),
     warning: report.findings.filter((finding) => finding.severity === "warning"),
@@ -66,7 +70,7 @@ function ReportHtml({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {faviconBase64 ? <link rel="icon" type="image/png" href={`data:image/png;base64,${faviconBase64}`} /> : null}
         <title>Audio Pipeline Audit for Unity</title>
-        <style>{createStyles(fontBase64)}</style>
+        <style>{createStyles({ interFontBase64 })}</style>
       </head>
       <body>
         <header className="topbar">

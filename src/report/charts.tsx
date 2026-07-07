@@ -29,14 +29,14 @@ export function VisualSummary({ report }: { report: AudioAuditReport }) {
           segments={[
             { label: "Errors", value: report.summary.errorCount, color: "var(--crimson)" },
             { label: "Warnings", value: report.summary.warningCount, color: "var(--gold)" },
-            { label: "Info", value: report.summary.infoCount, color: "#244051" }
+            { label: "Info", value: report.summary.infoCount, color: "var(--blue)" }
           ]}
         />
         <DonutChart
           title="Asset References"
           segments={[
-            { label: "Referenced", value: referencedAssets, color: "#244051" },
-            { label: "Unreferenced", value: unreferencedAssets, color: "var(--muted)" }
+            { label: "Referenced", value: referencedAssets, color: "var(--blue)" },
+            { label: "Unreferenced", value: unreferencedAssets, color: "var(--violet)" }
           ]}
         />
         <DonutChart
@@ -44,8 +44,8 @@ export function VisualSummary({ report }: { report: AudioAuditReport }) {
           segments={[
             { label: "AudioSources", value: architectureValues[0], color: "var(--crimson)" },
             { label: "Definitions", value: architectureValues[1], color: "var(--gold)" },
-            { label: "Scripts", value: architectureValues[2], color: "#244051" },
-            { label: "Middleware", value: architectureValues[3], color: "#5f6f52" }
+            { label: "Scripts", value: architectureValues[2], color: "var(--blue)" },
+            { label: "Middleware", value: architectureValues[3], color: "var(--green)" }
           ]}
         />
       </section>
